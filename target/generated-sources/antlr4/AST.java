@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
  
 import org.antlr.v4.runtime.Token;
@@ -57,7 +57,7 @@ public class AST {
 	}
  
 	private AST(AST ast, ParseTree tree) {
-		this(ast, tree, new ArrayList<AST>());
+		this(ast, tree, new LinkedList<AST>());
 	}
  
 	private AST(AST parent, ParseTree tree, List<AST> children) {
@@ -82,7 +82,7 @@ public class AST {
  
 	public List<AST> getChildren() 
 	{
-		return new ArrayList<>(children);
+		return new LinkedList<>(children);
 	}
  
 	// Determines the payload of this AST: a string in case it's an inner node
@@ -138,10 +138,10 @@ public class AST {
 		StringBuilder builder = new StringBuilder();
  
 		AST ast = this;
-		List<AST> firstStack = new ArrayList<>();
+		List<AST> firstStack = new LinkedList<>();
 		firstStack.add(ast);
  
-		List<List<AST>> childListStack = new ArrayList<>();
+		List<List<AST>> childListStack = new LinkedList<>();
 		childListStack.add(firstStack);
  
 		while (!childListStack.isEmpty()) {
@@ -175,7 +175,7 @@ public class AST {
 						.append(caption).append("\n");
  
 				if (ast.children.size() > 0) {
-					List<AST> children = new ArrayList<>();
+					List<AST> children = new LinkedList<>();
 					for (int i = 0; i < ast.children.size(); i++) {
 						children.add(ast.children.get(i));
 					}

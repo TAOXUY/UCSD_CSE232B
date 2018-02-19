@@ -1,10 +1,56 @@
 grammar XQuery;
 
 
+xq
+    : '$' var       # XQVariable
+    | StringConst   # XQStringConst
+    | ap            # XQAp
+    | '(' xq ')'    # XQPar
+    | xq '/' rp     # XQChild
+    | xq '//' rp    # XQAll
+    | xq ',' xq     # XQDot
+    | '<' NAME '>' '{' xq '}' '<' '/' NAME '>'      # XQTag
+    | forClause letClause? whereClause? returnClause        #FLWR
+    | letClause xq      #XQLet
+    ;
 
+var
+    : NAME
+    ;
 
+forClause
+    : 'for' '$' var 'in' xq (',' '$' var 'in' xq)*
+    ;
 
+letClause
+    : 'let' '$' var ':=' xq (',' '$' var ':=' xq)*
+    ;
 
+whereClause
+    : 'where' cond
+    ;
+
+returnClause
+    : 'return' xq
+    ;
+
+cond
+    : xq '=' xq         #XQCondEqual
+    | xq 'eq' xq        #XQCondEqual
+    | xq '==' xq        #XQCondIs
+    | xq 'is' xq        #XQCondIs
+    | 'empty' '(' xq ')'    #XQCondEmpty
+    | 'some' '$' var 'in' xq (',' '$' var 'in' xq)* 'satisfies' cond    #XQCondSome
+    | '(' cond ')'      #XQCondPar
+    | cond 'and' cond   #XQCondAnd
+    | cond 'or' cond    #XQCondOr
+    | 'not' cond        #XQCondNot
+    ;
+
+StringConst
+    : '"'+[a-zA-Z0-9,.!?; ''""-]+'"'
+    ;
+    
 fltr
 : rp                           # FltrRp
 | rp '=' rp                    # FltrEqual
@@ -39,7 +85,8 @@ rp
 
 
 doc 
-: 'doc("' fname '"' ')' 
+: 'document("' fname '"' ')' 
+| 'doc("' fname '"' ')' 
 ;
 
 fname
