@@ -113,7 +113,6 @@ public class MyXQuery {
         XQueryLexer lex = new XQueryLexer(inputStream);
         CommonTokenStream tokenStream = new CommonTokenStream(lex);
         XQueryParser parser = new XQueryParser(tokenStream);
-
         ParseTree tree = parser.xq();
         XQueryMyVisitor myVistor = new XQueryMyVisitor();
         LinkedList<Node> result = new LinkedList<Node>();
@@ -122,22 +121,7 @@ public class MyXQuery {
         	removeNodes(n);
         System.out.println(nodeToString(n));
         }
-//        DocumentBuilderFactory Factory = DocumentBuilderFactory.newInstance();
-//        DocumentBuilder Builder = Factory.newDocumentBuilder();
-//        Document doc = Builder.newDocument();
-//        State.printall(result);
-//        Node top = doc.createElement("Result");
-//        doc.appendChild(top);
-//        for (int i = 0; i < result.size(); i++){
-//            Element node = dfs(doc, result.get(i));
-//            top.appendChild(node);
-//        }
-//        Transformer transformer = TransformerFactory.newInstance().newTransformer();
-//        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-//        transformer.setOutputProperty (OutputKeys.INDENT, "yes");
-//        Result res = new StreamResult(new File("out.xml"));
-//        Source src = new DOMSource(doc);
-//        transformer.transform(src, res);
+
     }
     public static void removeNodes(Node node) {
         NodeList list = node.getChildNodes();
@@ -162,18 +146,5 @@ public class MyXQuery {
 
         return sw.toString();
       }
-//    private static Element dfs(Document doc, Node node){
-//        if (node.getNodeType() == Node.ELEMENT_NODE) {
-//            Element element = doc.createElement(node.getNodeName());
-//            NodeList tmp = node.getChildNodes();
-//            for (int i = 0; i < tmp.getLength(); i++) {
-//                if (tmp.item(i).getNodeType() == Node.TEXT_NODE) {
-//                    Node txt = doc.createTextNode(node.getTextContent());
-//                    element.appendChild(txt);
-//                } else element.appendChild(dfs(doc, tmp.item(i)));
-//            }
-//            return element;
-//        }
-//        return null;
-//    }
+
 }
