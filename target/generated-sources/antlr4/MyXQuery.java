@@ -38,7 +38,7 @@
 //        CommonTokenStream tokens = new CommonTokenStream(lexer);
 //        XQueryParser parser = new XQueryParser(tokens);
 //        XQueryMyVistor eval = new XQueryMyVistor();
-//        LinkedList<Node> finalResult = (LinkedList<Node>) eval.visit(parser.ap());
+//        ArrayList<Node> finalResult = (ArrayList<Node>) eval.visit(parser.ap());
 //        System.out.println("finalResult size: " + finalResult.size());
 //        for(Node n:finalResult) {
 //        	System.out.println(nodeToString(n));
@@ -100,27 +100,27 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.StringWriter;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 
 public class MyXQuery {
     public static void main(String[] args) throws Exception{
-        String fname = "inputQuery4.txt";
+        String fname = "myTest_21.txt";
         File input = new File(fname);
         FileInputStream fileinput = new FileInputStream(input);
         ANTLRInputStream inputStream = new ANTLRInputStream(fileinput);
-
         XQueryLexer lex = new XQueryLexer(inputStream);
         CommonTokenStream tokenStream = new CommonTokenStream(lex);
         XQueryParser parser = new XQueryParser(tokenStream);
         ParseTree tree = parser.xq();
         XQueryMyVisitor myVistor = new XQueryMyVisitor();
-        LinkedList<Node> result = new LinkedList<Node>();
-        result = (LinkedList<Node>) myVistor.visit(tree);
-        for (Node n : result){
-        	removeNodes(n);
-        System.out.println(nodeToString(n));
-        }
+        ArrayList<Node> result = new ArrayList<Node>();
+        result = (ArrayList<Node>) myVistor.visit(tree);
+//        for (Node n : result){
+//        	   removeNodes(n);
+//        }
+
+        for (Node n : result) System.out.println(nodeToString(n));
 
     }
     public static void removeNodes(Node node) {
@@ -136,9 +136,8 @@ public class MyXQuery {
             node.getParentNode().removeChild(node);
         }
     }
-    private static String nodeToString(Node node) throws Exception{
+    public static String nodeToString(Node node) throws Exception{
         StringWriter sw = new StringWriter();
-
           Transformer t = TransformerFactory.newInstance().newTransformer();
           t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
           t.setOutputProperty(OutputKeys.INDENT, "yes");
