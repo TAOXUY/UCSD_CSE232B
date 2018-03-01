@@ -11,7 +11,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
-	// private ArrayList<Node> curNodes = new ArrayList<>();
 	private boolean hasAttribute = false;
 	private Map<String, List<Node>> binding = new HashMap<>();
 	private Stack<State> stateStack = new Stack<State>();
@@ -127,16 +126,22 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		if (vars.size() == 0) {
 			if (l != null)
 				visit(l);
-			if (w == null || (boolean) visit(w))
+			if (w == null || (boolean) visit(w)) {
+//				System.out.println("pass cond");
 				visit(r);
+			}
 			return null;
 		}
 		XQueryParser.VarContext currentvar = vars.get(0);
 		XQueryParser.XqContext currentxq = xql.get(0);
 		vars.remove(0);
 		xql.remove(0);
+//		State pre = stateStack.peek();
 		ArrayList<Node> varbuffer = (ArrayList<Node>) visit(currentxq);
+//		stateStack.pop();
+//		stateStack.push(pre);
 		String varname = currentvar.getText();
+//		System.out.println(varbuffer.size());
 		for (int i = 0; i < varbuffer.size(); i++) {
 			ArrayList<Node> temp = new ArrayList<>();
 			temp.add(varbuffer.get(i));
@@ -181,7 +186,11 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 
 	@Override
 	public Boolean visitWhereClause(XQueryParser.WhereClauseContext ctx) {
-		return (boolean) visit(ctx.cond());
+		State pre = stateStack.peek();
+		boolean res = (boolean) visit(ctx.cond());
+		stateStack.pop();
+		stateStack.push(pre);
+		return res;
 	}
 
 	@Override
@@ -193,7 +202,6 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 
 	@Override
 	public Boolean visitXQCondEqual(XQueryParser.XQCondEqualContext ctx) {
-		// System.out.println("visitXQCondEqual");
 		State preState = stateStack.peek();
 		ArrayList<Node> xq1 = (ArrayList<Node>) visit(ctx.xq(0));
 		stateStack.pop();
@@ -206,7 +214,21 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		int len2 = xq2.size();
 		for (int i = 0; i < len1; i++) {
 			for (int j = 0; j < len2; j++) {
-				if (!xq1.get(i).isEqualNode(xq2.get(j)))
+				Node node1 = xq1.get(i);
+				Node node2 = xq2.get(j);
+				try {
+					if (node2.getTextContent().equals("SCENE II.  A public place.")) {
+//						System.out.println(MyXQuery.nodeToString(node1));
+//						System.out.println(MyXQuery.nodeToString(node2) + "\n");
+					}
+					
+					
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if (!node1.isEqualNode(node2))
 					continue;
 				return true;
 			}
@@ -240,6 +262,7 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 
 	@Override
 	public Boolean visitXQCondSome(XQueryParser.XQCondSomeContext ctx) {
+//		System.out.println("XQCondSome");
 		return (boolean) condSomeHelper(ctx.var(), ctx.xq(), ctx.cond());
 	}
 
@@ -254,15 +277,19 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		xql.remove(0);
 		ArrayList<Node> varbuffer = (ArrayList<Node>) visit(currentxq);
 		String varname = currentvar.getText();
+//		System.out.println(varbuffer.size());
 		for (int i = 0; i < varbuffer.size(); i++) {
 			ArrayList<Node> temp = new ArrayList<>();
 			temp.add(varbuffer.get(i));
 			binding.put(varname, temp);
-			if ((boolean) condSomeHelper(vars, xql, c))
+			if ((boolean) condSomeHelper(vars, xql, c)) {
+//				System.out.println("true");
 				return true;
+			}
 		}
 		vars.add(0, currentvar);
 		xql.add(0, currentxq);
+//		System.out.println("false");
 		return false;
 	}
 
