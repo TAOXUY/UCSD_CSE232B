@@ -20,6 +20,7 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 	XQueryMyVisitor() {
 		try {
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			stateStack.push(new State(new ArrayList()));
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -114,8 +115,24 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		return ans;
 	}
 
+	
+	@Override
+	public Object visitAttrs(XQueryParser.AttrsContext ctx) {
+		List<String> result = new ArrayList<String>();
+		for(XQueryParser.AttrContext at: ctx.attr()){
+			result.add(at.getText());
+		}
+		return result;
+	}
+	
+	
+
+	
+
+	
 	@Override
 	public Object visitFLWR(XQueryParser.FLWRContext ctx) {
+//		System.out.println("visitFLWR");
 		retStack.push(new ArrayList<>());
 		FLWRhelper(ctx.forClause().var(), ctx.forClause().xq(), ctx.letClause(), ctx.whereClause(), ctx.returnClause());
 		return retStack.pop();
@@ -127,7 +144,6 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 			if (l != null)
 				visit(l);
 			if (w == null || (boolean) visit(w)) {
-//				System.out.println("pass cond");
 				visit(r);
 			}
 			return null;
@@ -136,12 +152,8 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		XQueryParser.XqContext currentxq = xql.get(0);
 		vars.remove(0);
 		xql.remove(0);
-//		State pre = stateStack.peek();
 		ArrayList<Node> varbuffer = (ArrayList<Node>) visit(currentxq);
-//		stateStack.pop();
-//		stateStack.push(pre);
 		String varname = currentvar.getText();
-//		System.out.println(varbuffer.size());
 		for (int i = 0; i < varbuffer.size(); i++) {
 			ArrayList<Node> temp = new ArrayList<>();
 			temp.add(varbuffer.get(i));
@@ -153,6 +165,81 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		return null;
 	}
 
+	public String getAttrKey(Node node, ArrayList<String> attrs) {
+		ArrayList<Node> localChildren = (ArrayList<Node>) State.children(node);
+		String res = "";
+		for (Node temp : localChildren) {
+			String nodeName = temp.getNodeName();
+			ArrayList<Node> children = State.children(temp);
+			for (String attr : attrs) {
+				if (!nodeName.equals(attr)) continue;
+				for (Node child : children) {
+					res += child.getTextContent();
+				}
+			}
+		}
+		return res;
+		
+	}
+	@Override
+	public Object visitXQJoin(XQueryParser.XQJoinContext ctx) {
+		return visit(ctx.joinClause());
+	}
+	
+	@Override
+	public Object visitJoinClause(XQueryParser.JoinClauseContext ctx) {
+//		System.out.println("visitJoin");
+		State preState = stateStack.peek();
+		ArrayList<Node> leftNodes = (ArrayList<Node>) visit(ctx.xq(0));
+		stateStack.pop();
+		stateStack.push(preState);
+		
+		ArrayList<Node> rightNodes = (ArrayList<Node>) visit(ctx.xq(1));
+		stateStack.pop();
+		stateStack.push(preState);
+		
+		ArrayList<String> leftAttrs = (ArrayList<String>)visit(ctx.attrs(0));
+		ArrayList<String> rightAttrs = (ArrayList<String>)visit(ctx.attrs(1));
+		HashMap<String, ArrayList<Node>> map = new HashMap();
+		
+		ArrayList<Node> smallNodes = leftNodes.size() < rightNodes.size() ? leftNodes : rightNodes,
+					    largeNodes = leftNodes.size() < rightNodes.size() ? rightNodes : leftNodes;
+		ArrayList<String> smallAttrs = leftNodes.size() < rightNodes.size() ? leftAttrs : rightAttrs,
+					      largeAttrs = leftNodes.size() < rightNodes.size() ? rightAttrs : leftAttrs;
+		
+		for (Node node : smallNodes) {
+			String attrKey = getAttrKey(node, smallAttrs);
+//			System.out.println(attrKey);
+			ArrayList<Node> list = map.getOrDefault(attrKey, new ArrayList());
+			list.add(node);
+			map.put(attrKey, list);
+		}
+		
+		ArrayList<Node> res = new ArrayList();
+		for (Node lnode : largeNodes) {
+			String attrKey = getAttrKey(lnode, largeAttrs);
+			if (!map.containsKey(attrKey)) continue;
+			ArrayList <Node> snodes = map.get(attrKey);
+			for (Node snode : snodes) {
+				Element container = doc.createElement("tuple");
+				ArrayList<Node> snodeChildren = State.children(snode);
+				for (Node snodeChild : snodeChildren) {
+					container.appendChild(snodeChild);
+				}
+				
+				ArrayList<Node> lnodeChildren = State.children(lnode);
+				for (Node lnodeChild : lnodeChildren)  {
+					container.appendChild(lnodeChild);
+				}
+
+				res.add(container);
+			}
+		}
+		return res;
+
+	}
+
+	
 	@Override
 	public Object visitXQLet(XQueryParser.XQLetContext ctx) {
 		visit(ctx.letClause());
@@ -354,7 +441,7 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		visit(ctx.doc());
 		ArrayList<Node> res = stateStack.pop().getChildren();
 		stateStack.push(new State(res));
-		return res;
+		return (ArrayList<Node>) visit(ctx.rp());
 	}
 
 	@Override

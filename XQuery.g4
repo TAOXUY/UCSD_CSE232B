@@ -12,15 +12,34 @@ xq
     | '<' NAME '>' '{' xq '}' '<' '/' NAME '>'      # XQTag
     | forClause letClause? whereClause? returnClause        #FLWR
     | letClause xq      #XQLet
+    | joinClause    #XQJoin
     ;
 
 var
     : NAME
     ;
 
+attr
+    : NAME
+    ;
+    
+attrs
+    :'[' attr (',' attr )* ']'
+    ;
+    
+
+joinClause
+    : 'join' '(' 
+    xq ',' xq  
+    ','
+    attrs ',' attrs
+    ')'
+    ;
+
 forClause
     : 'for' '$' var 'in' xq (',' '$' var 'in' xq)*
     ;
+    
 
 letClause
     : 'let' '$' var ':=' xq (',' '$' var ':=' xq)*
@@ -65,8 +84,8 @@ fltr
 
 
 ap
-:  doc '/' rp 		# APChildren
-|  doc '//' rp		# APAll
+:  doc '/' rp       # APChildren
+|  doc '//' rp      # APAll
 ;
 
 rp
@@ -74,7 +93,7 @@ rp
 | '*'                          # AllChildren
 | '.'                          # Current
 | '..'                         # Parent
-| TXT               	           # Text
+| TXT                              # Text
 | '@' NAME                     # Attribute
 | rp '/' rp                    # RpChildren
 | rp '//' rp                   # RpAll
@@ -93,6 +112,6 @@ fname
 : NAME ('.' NAME)?
 ;
 
-TXT:	'text()';
+TXT:    'text()';
 NAME: [a-zA-Z0-9_-]+;
 WS : [ \t\r\n]+ -> skip;
