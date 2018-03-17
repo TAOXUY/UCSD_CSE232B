@@ -93,6 +93,13 @@ public interface XQueryVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitXQCondOr(@NotNull XQueryParser.XQCondOrContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code NoAttrs}
+	 * labeled alternative in {@link XQueryParser#attrs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNoAttrs(@NotNull XQueryParser.NoAttrsContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code XQLet}
 	 * labeled alternative in {@link XQueryParser#xq}.
 	 * @param ctx the parse tree
@@ -161,12 +168,6 @@ public interface XQueryVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFltrwithP(@NotNull XQueryParser.FltrwithPContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link XQueryParser#attrs}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAttrs(@NotNull XQueryParser.AttrsContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code RpwithP}
 	 * labeled alternative in {@link XQueryParser#rp}.
 	 * @param ctx the parse tree
@@ -220,6 +221,13 @@ public interface XQueryVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitXQCondEqual(@NotNull XQueryParser.XQCondEqualContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AllAttrs}
+	 * labeled alternative in {@link XQueryParser#attrs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAllAttrs(@NotNull XQueryParser.AllAttrsContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code TagName}
 	 * labeled alternative in {@link XQueryParser#rp}.

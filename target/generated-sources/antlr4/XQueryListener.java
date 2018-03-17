@@ -148,6 +148,18 @@ public interface XQueryListener extends ParseTreeListener {
 	 */
 	void exitXQCondOr(@NotNull XQueryParser.XQCondOrContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code NoAttrs}
+	 * labeled alternative in {@link XQueryParser#attrs}.
+	 * @param ctx the parse tree
+	 */
+	void enterNoAttrs(@NotNull XQueryParser.NoAttrsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NoAttrs}
+	 * labeled alternative in {@link XQueryParser#attrs}.
+	 * @param ctx the parse tree
+	 */
+	void exitNoAttrs(@NotNull XQueryParser.NoAttrsContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code XQLet}
 	 * labeled alternative in {@link XQueryParser#xq}.
 	 * @param ctx the parse tree
@@ -264,16 +276,6 @@ public interface XQueryListener extends ParseTreeListener {
 	 */
 	void exitFltrwithP(@NotNull XQueryParser.FltrwithPContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link XQueryParser#attrs}.
-	 * @param ctx the parse tree
-	 */
-	void enterAttrs(@NotNull XQueryParser.AttrsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link XQueryParser#attrs}.
-	 * @param ctx the parse tree
-	 */
-	void exitAttrs(@NotNull XQueryParser.AttrsContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code RpwithP}
 	 * labeled alternative in {@link XQueryParser#rp}.
 	 * @param ctx the parse tree
@@ -365,6 +367,18 @@ public interface XQueryListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitXQCondEqual(@NotNull XQueryParser.XQCondEqualContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AllAttrs}
+	 * labeled alternative in {@link XQueryParser#attrs}.
+	 * @param ctx the parse tree
+	 */
+	void enterAllAttrs(@NotNull XQueryParser.AllAttrsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AllAttrs}
+	 * labeled alternative in {@link XQueryParser#attrs}.
+	 * @param ctx the parse tree
+	 */
+	void exitAllAttrs(@NotNull XQueryParser.AllAttrsContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code TagName}
 	 * labeled alternative in {@link XQueryParser#rp}.

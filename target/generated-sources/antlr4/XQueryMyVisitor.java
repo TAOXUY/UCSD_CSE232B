@@ -117,12 +117,17 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 
 	
 	@Override
-	public Object visitAttrs(XQueryParser.AttrsContext ctx) {
+	public Object visitAllAttrs(XQueryParser.AllAttrsContext ctx) {
 		List<String> result = new ArrayList<String>();
 		for(XQueryParser.AttrContext at: ctx.attr()){
 			result.add(at.getText());
 		}
 		return result;
+	}
+	
+	@Override
+	public Object visitNoAttrs(XQueryParser.NoAttrsContext ctx) {
+		return new ArrayList<String>();
 	}
 	
 	
@@ -168,16 +173,20 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 	public String getAttrKey(Node node, ArrayList<String> attrs) {
 		ArrayList<Node> localChildren = (ArrayList<Node>) State.children(node);
 		String res = "";
+		ArrayList<String> strs = new ArrayList();
 		for (Node temp : localChildren) {
 			String nodeName = temp.getNodeName();
 			ArrayList<Node> children = State.children(temp);
 			for (String attr : attrs) {
 				if (!nodeName.equals(attr)) continue;
 				for (Node child : children) {
-					res += child.getTextContent();
+					strs.add(child.getTextContent());
 				}
 			}
 		}
+		Collections.sort(strs);
+		for (String str : strs)
+		res += str;
 		return res;
 		
 	}
@@ -195,8 +204,10 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		stateStack.push(preState);
 		
 		ArrayList<Node> rightNodes = (ArrayList<Node>) visit(ctx.xq(1));
+		
 		stateStack.pop();
 		stateStack.push(preState);
+//		System.out.println(leftNodes.size() + " " + rightNodes.size());
 		
 		ArrayList<String> leftAttrs = (ArrayList<String>)visit(ctx.attrs(0));
 		ArrayList<String> rightAttrs = (ArrayList<String>)visit(ctx.attrs(1));
@@ -206,32 +217,84 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 					    largeNodes = leftNodes.size() < rightNodes.size() ? rightNodes : leftNodes;
 		ArrayList<String> smallAttrs = leftNodes.size() < rightNodes.size() ? leftAttrs : rightAttrs,
 					      largeAttrs = leftNodes.size() < rightNodes.size() ? rightAttrs : leftAttrs;
+		ArrayList<Node> res = new ArrayList();
+//		System.out.println(leftNodes.size() + " " + rightNodes.size());
+//		System.out.println(smallAttrs);
+//		System.out.println(largeAttrs);
+		if (leftAttrs.size() == 0 &&  rightAttrs.size() == 0) {
+			
+			for (Node snode : smallNodes) {
+				for (Node lnode : largeNodes) {
+					Element container = doc.createElement("tuple");
+					ArrayList<Node> snodeChildren = State.children(snode);
+//					System.out.println("hah");
+					for (Node snodeChild : snodeChildren) {
+						container.appendChild(snodeChild.cloneNode(true));
+					}
+					
+					ArrayList<Node> lnodeChildren = State.children(lnode);
+					for (Node lnodeChild : lnodeChildren)  {
+						container.appendChild(lnodeChild.cloneNode(true));
+					}
+					
+					res.add(container);
+				}
+			}
+			return res;
+		} 
 		
 		for (Node node : smallNodes) {
-			String attrKey = getAttrKey(node, smallAttrs);
-//			System.out.println(attrKey);
+			String attrKey = getAttrKey(node, smallAttrs).replaceAll("\\s+","");
+//			if (smallNodes.size() == 9) {
+//				System.out.println(attrKey);
+//				System.out.println("===================================================================================================");
+//			}
+//			
 			ArrayList<Node> list = map.getOrDefault(attrKey, new ArrayList());
 			list.add(node);
 			map.put(attrKey, list);
 		}
-		
-		ArrayList<Node> res = new ArrayList();
+//		System.out.println(smallAttrs);
+//		System.out.println(largeAttrs);
+//		System.out.println("===================================================================================================");
+//		for(String str : map.keySet()) {
+//			System.out.println("==========");
+//		System.out.println(str);
+//		System.out.println("==========");
+//		}
+//		System.out.println("===================================================================================================");
+	
 		for (Node lnode : largeNodes) {
-			String attrKey = getAttrKey(lnode, largeAttrs);
+			String attrKey = getAttrKey(lnode, largeAttrs).replaceAll("\\s+","");
+//			if (smallNodes.size() == 9) {
+//				System.out.println(attrKey);
+//				System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//			}
+			
+//			System.out.println("===================================================================================================");
+//			System.out.println(attrKey);
+//			System.out.println("===================================================================================================");
 			if (!map.containsKey(attrKey)) continue;
 			ArrayList <Node> snodes = map.get(attrKey);
+//			System.out.println(snodes.size());
 			for (Node snode : snodes) {
 				Element container = doc.createElement("tuple");
 				ArrayList<Node> snodeChildren = State.children(snode);
-				for (Node snodeChild : snodeChildren) {
-					container.appendChild(snodeChild);
-				}
 				
+				for (Node snodeChild : snodeChildren) {
+					container.appendChild(snodeChild.cloneNode(true));
+				}
+//				try {
+//					System.out.println(MyXQuery.nodeToString(snode));
+//					System.out.println("second=========");
+//				} catch (Exception e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 				ArrayList<Node> lnodeChildren = State.children(lnode);
 				for (Node lnodeChild : lnodeChildren)  {
-					container.appendChild(lnodeChild);
+					container.appendChild(lnodeChild.cloneNode(true));
 				}
-
 				res.add(container);
 			}
 		}
@@ -413,7 +476,6 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		File xmlFltre = new File(ctx.fname().getText()); // dont know whats in xmlFltre
 		DocumentBuilderFactory docBF = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docB = null;
-		// System.out.println("aa");
 		try {
 			docB = docBF.newDocumentBuilder();
 		} catch (ParserConfigurationException pE1) {
@@ -422,6 +484,7 @@ public class XQueryMyVisitor extends XQueryBaseVisitor<Object> {
 		Document doc = null; // use for what
 		try {
 			if (docB != null) {
+//				System.out.println(ctx.fname().getText());
 				doc = docB.parse(xmlFltre);
 			}
 		} catch (Exception e) {

@@ -24,7 +24,8 @@ attr
     ;
     
 attrs
-    :'[' attr (',' attr )* ']'
+    :'[' attr (',' attr )* ']' #AllAttrs
+    | '[]'						#NoAttrs
     ;
     
 

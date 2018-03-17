@@ -7,3 +7,4 @@
 /XQueryMyVisitor.java
 /XQueryParser.java
 /XQueryVisitor.java
+/XQueryRewriter.java

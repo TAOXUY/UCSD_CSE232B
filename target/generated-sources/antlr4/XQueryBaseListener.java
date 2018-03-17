@@ -160,6 +160,18 @@ public class XQueryBaseListener implements XQueryListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNoAttrs(@NotNull XQueryParser.NoAttrsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNoAttrs(@NotNull XQueryParser.NoAttrsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterXQLet(@NotNull XQueryParser.XQLetContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -280,18 +292,6 @@ public class XQueryBaseListener implements XQueryListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAttrs(@NotNull XQueryParser.AttrsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAttrs(@NotNull XQueryParser.AttrsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterRpwithP(@NotNull XQueryParser.RpwithPContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -383,6 +383,18 @@ public class XQueryBaseListener implements XQueryListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitXQCondEqual(@NotNull XQueryParser.XQCondEqualContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAllAttrs(@NotNull XQueryParser.AllAttrsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAllAttrs(@NotNull XQueryParser.AllAttrsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
