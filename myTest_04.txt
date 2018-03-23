@@ -1,2 +1,0 @@
-for $s in document("j_caesar.xml")//SPEAKER, $a in document("j_caesar.xml")//ACT, $sp in $a//SPEAKER
-return <act>{ $sp} </act>
